@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abhay Singh — Video Editor &amp; Motion Designer | NLE Timeline Portfolio</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans, Instrument Serif, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            clipDoc: '#E85D75',
+            clipAds: '#F59E0B',
+            clipExp: '#38BDF8',
+            clipCourse: '#10B981',
+            clipTalk: '#A78BFA',
+            clipPod: '#FB7185',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* =====================================================================
+       THEME TOKENS: NLE DARK STUDIO (Default) & DAYLIGHT PAPER STUDIO
+       ===================================================================== */
+    :root,
+    html[data-theme="dark"] {
+      --bg-canvas: #0E1015;
+      --bg-panel: #151821;
+      --bg-header: #1C202C;
+      --bg-track: #12151E;
+      --bg-track-alt: #161A25;
+      --bg-elevated: #202534;
+      --border-nle: #282E3E;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --text-primary: #F3F4F6;
+      --text-secondary: #9CA3AF;
+      --text-muted: #6B7280;
+      --playhead: #FF4D4D;
+      --accent: #E85D75;
+      --ruler-tick: rgba(255, 255, 255, 0.2);
+      --shadow-panel: 0 12px 32px rgba(0, 0, 0, 0.42);
+    }
+
+    html[data-theme="light"] {
+      --bg-canvas: #F7F5F0;
+      --bg-panel: #FFFFFF;
+      --bg-header: #EFECE6;
+      --bg-track: #F2EFE9;
+      --bg-track-alt: #EAE6DF;
+      --bg-elevated: #E5E0D8;
+      --border-nle: #D5D0C5;
+      --border-subtle: rgba(20, 20, 19, 0.07);
+      --text-primary: #16181D;
+      --text-secondary: #4B5563;
+      --text-muted: #78756F;
+      --playhead: #E03131;
+      --accent: #D94862;
+      --ruler-tick: rgba(20, 20, 19, 0.25);
+      --shadow-panel: 0 10px 28px rgba(20, 20, 19, 0.08);
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .nle-panel {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-nle);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .nle-header {
+      background-color: var(--bg-header);
+      border-bottom: 1px solid var(--border-nle);
+    }
+
+    .nle-border {
+      border-color: var(--border-nle);
+    }
+
+    .text-main { color: var(--text-primary); }
+    .text-sub { color: var(--text-secondary); }
+    .text-dim { color: var(--text-muted); }
+
+    /* Authentic NLE Clip Styling */
+    .nle-clip {
+      position: absolute;
+      top: 5px;
+      bottom: 5px;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease, opacity 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+    }
+
+    .nle-clip:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+      z-index: 15;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.38), 0 0 0 1.5px #FFFFFF;
+    }
+
+    .nle-clip.active-clip {
+      box-shadow: 0 0 0 2px #FFFFFF, 0 6px 18px rgba(0, 0, 0, 0.45);
+      z-index: 14;
+    }
+
+    .nle-clip.dimmed-clip {
+      opacity: 0.22;
+      filter: grayscale(0.6);
+    }
+
+    /* Clip Top Color Header Strip like Premiere / DaVinci */
+    .nle-clip-header {
+      background: rgba(0, 0, 0, 0.26);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    /* Scrubbable Playhead */
+    #playhead-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background-color: var(--playhead);
+      pointer-events: none;
+      z-index: 30;
+      box-shadow: 0 0 10px rgba(255, 77, 77, 0.65);
+    }
+
+    #playhead-cap {
+      position: absolute;
+      top: 0;
+      left: -6px;
+      width: 14px;
+      height: 16px;
+      background-color: var(--playhead);
+      clip-path: polygon(0 0, 100% 0, 100% 58%, 50% 100%, 0 58%);
+      cursor: ew-resize;
+      pointer-events: auto;
+    }
+
+    /* Custom Scrollbars for Timeline & Bins */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-track);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-nle);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Prevent iOS auto-zoom on form inputs */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+    @media (min-width: 640px) {
+      input, select, textarea {
+        font-size: 13px !important;
+      }
+    }
+
+    /* Live indicator pulse */
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.88); }
+    }
+    .pulse-dot {
+      animation: statusPulse 2.2s infinite ease-in-out;
+    }
+
+    /* Modal Backdrop & Slide-Up */
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-animate {
+      animation: modalIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-rose-500/30">
+
+  <!-- =====================================================================
+       A. TOP NLE APPLICATION / MENU BAR (STICKY)
+       ===================================================================== -->
+  <header class="sticky top-0 z-40 nle-header backdrop-blur-md">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-5 h-14 flex items-center justify-between gap-2">
+      
+      <!-- Left: Window Dots + .prproj Badge + Live Status -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="hidden sm:flex items-center gap-1.5 shrink-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></span>
+        </div>
+
+        <a href="#workspace" class="flex items-center gap-2 px-2.5 py-1 rounded-lg border nle-border bg-black/10 hover:border-rose-400/50 transition-colors min-w-0">
+          <span class="w-5 h-5 rounded bg-gradient-to-br from-rose-500 to-amber-500 text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0">Pr</span>
+          <span class="font-mono text-[11px] sm:text-xs font-semibold text-main truncate">ABHAY_SINGH_PORTFOLIO_2026.prproj</span>
+        </a>
+
+        <div class="hidden xl:flex items-center gap-2 px-2.5 py-1 rounded-full border nle-border text-[11px] font-mono text-sub">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
+          <span>Available · Ghaziabad, IST (<span id="live-ist-clock">--:--:--</span>)</span>
+        </div>
+      </div>
+
+      <!-- Center: NLE Workspace Switcher Tabs -->
+      <nav class="hidden lg:flex items-center gap-1 p-1 rounded-xl border nle-border bg-black/15" aria-label="Workspace Tabs">
+        <a href="#workspace" data-nav="workspace" class="ws-tab px-3 py-1 rounded-lg font-mono text-[11px] font-medium bg-rose-500 text-white shadow-sm transition-all">
+          [01] Edit Timeline
+        </a>
+        <a href="#media-pool" data-nav="media-pool" class="ws-tab px-3 py-1 rounded-lg font-mono text-[11px] font-medium text-sub hover:text-main transition-all">
+          [02] Media Pool (17)
+        </a>
+        <a href="#pricing" data-nav="pricing" class="ws-tab px-3 py-1 rounded-lg font-mono text-[11px] font-medium text-sub hover:text-main transition-all">
+          [03] Rates &amp; Retainers
+        </a>
+        <a href="#contact" data-nav="contact" class="ws-tab px-3 py-1 rounded-lg font-mono text-[11px] font-medium text-sub hover:text-main transition-all">
+          [04] Export / Hire Me
+        </a>
+      </nav>
+
+      <!-- Right: 150+ Stat + Theme Toggle + Render Brief CTA + Mobile Hamburger -->
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border nle-border font-mono text-[11px] text-main bg-black/10">
+          <span class="text-amber-400">★</span>
+          <span>150+ Videos Edited</span>
+        </span>
+
+        <button id="theme-toggle-btn" onclick="toggleStudioTheme()" title="Switch Dark Studio / Daylight Mode" class="w-9 h-9 rounded-lg border nle-border flex items-center justify-center text-sub hover:text-main hover:border-rose-400/50 transition-colors">
+          <span id="theme-icon" class="text-sm">☀</span>
+        </button>
+
+        <a href="#contact" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold shadow-sm transition-all">
+          <span>Render Brief / Hire Me</span>
+          <span>↗</span>
+        </a>
+
+        <!-- Mobile Menu Button -->
+        <button onclick="toggleMobileDrawer()" aria-label="Toggle Menu" class="lg:hidden w-9 h-9 rounded-lg border nle-border flex items-center justify-center text-main">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Collapsible Navigation Drawer -->
+    <div id="mobile-drawer" class="hidden lg:hidden border-t nle-border px-4 py-3 space-y-2 bg-[var(--bg-panel)]">
+      <div class="flex items-center justify-between text-[11px] font-mono text-sub pb-2 border-b nle-border">
+        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Available · Ghaziabad IST</span>
+        <span class="text-amber-400 font-semibold">★ 150+ Videos Edited</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <a href="#workspace" onclick="toggleMobileDrawer()" class="px-3 py-2 rounded-lg border nle-border font-mono text-xs text-main">[01] Edit Timeline</a>
+        <a href="#media-pool" onclick="toggleMobileDrawer()" class="px-3 py-2 rounded-lg border nle-border font-mono text-xs text-main">[02] Media Pool (17)</a>
+        <a href="#pricing" onclick="toggleMobileDrawer()" class="px-3 py-2 rounded-lg border nle-border font-mono text-xs text-main">[03] Rates &amp; Retainers</a>
+        <a href="#contact" onclick="toggleMobileDrawer()" class="px-3 py-2 rounded-lg bg-rose-500 text-white font-mono text-xs font-semibold text-center">[04] Hire Me ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       MAIN STUDIO WORKSPACE ([01] EDIT TIMELINE + SPLIT MONITORS)
+       ===================================================================== -->
+  <main id="workspace" class="max-w-[1600px] w-full mx-auto px-3 sm:px-5 pt-3 pb-10 space-y-3">
+
+    <!-- UPPER NLE SPLIT: 1. Project Bin (Left) + 2. Program Monitor (Center) + 3. Clip Inspector (Right) -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+
+      <!-- 1. LEFT PANEL: PROJECT BIN / CREATOR BIO & TRACK FILTERS -->
+      <aside class="lg:col-span-3 nle-panel rounded-xl flex flex-col justify-between overflow-hidden order-2 lg:order-1">
+        <div>
+          <!-- Panel Header -->
+          <div class="nle-header px-3.5 py-2 flex items-center justify-between">
+            <div class="flex items-center gap-2 font-mono text-[11px] font-semibold text-main">
+              <span class="text-rose-400">▣</span>
+              <span>PROJECT BIN · ABHAY SINGH</span>
+            </div>
+            <span class="font-mono text-[10px] text-dim">17 CLIPS</span>
+          </div>
+
+          <!-- Bio Copy -->
+          <div class="p-3.5 border-b nle-border">
+            <h1 class="font-serif italic text-2xl sm:text-[26px] leading-tight text-main mb-1.5">
+              Abhay Singh — Video Editor &amp; Motion Designer
+            </h1>
+            <p class="text-xs text-sub leading-relaxed">
+              I craft retention-driven <strong class="text-main font-medium">long-form educational courses</strong>, <strong class="text-main font-medium">podcasts</strong>, <strong class="text-main font-medium">talking-head edits</strong>, <strong class="text-main font-medium">SaaS explainers</strong>, and <strong class="text-main font-medium">AI commercials</strong> for Indian &amp; global brands.
+            </p>
+          </div>
+
+          <!-- Category / Track Isolation Filter Pills -->
+          <div class="p-3.5 border-b nle-border">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-[10px] uppercase tracking-wider text-dim">Isolate Track / Category</span>
+              <button onclick="setCategoryFilter('All')" class="font-mono text-[10px] text-rose-400 hover:underline">Reset</button>
+            </div>
+            <div id="bin-filter-pills" class="flex flex-wrap gap-1.5">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Core NLE Toolkit Footer -->
+        <div class="p-3.5 bg-black/10">
+          <div class="font-mono text-[10px] uppercase tracking-wider text-dim mb-2">Installed Studio Stack</div>
+          <div class="flex flex-wrap gap-1">
+            <span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">Premiere Pro</span>
+            <span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">After Effects</span>
+            <span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">DaVinci Resolve</span>
+            <span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">Audition</span>
+            <span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">AI Ad Workflows</span>
+            <span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">Motion Graphics</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 2. CENTER PANEL: 16:9 PROGRAM MONITOR + TRANSPORT + VU METER -->
+      <div class="lg:col-span-6 nle-panel rounded-xl flex flex-col overflow-hidden order-1 lg:order-2">
+        <!-- Monitor Top Metadata Strip -->
+        <div class="nle-header px-3.5 py-2 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-rose-500 pulse-dot"></span>
+            <span class="font-mono text-[11px] font-semibold text-main">PROGRAM MONITOR</span>
+            <span class="hidden sm:inline-block font-mono text-[10px] px-1.5 py-0.5 rounded bg-black/20 text-sub">1920×1080 · 24fps · Rec.709</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <button id="safe-guides-btn" onclick="toggleSafeGuides()" title="Toggle Title/Action Safe Guides" class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub hover:text-main transition-colors">
+              ⊞ Safe Guides
+            </button>
+            <span id="monitor-timecode" class="font-mono text-xs sm:text-sm font-semibold text-amber-400 tracking-tight">01:00:00:00</span>
+          </div>
+        </div>
+
+        <!-- 16:9 Live Preview Canvas Screen -->
+        <div class="p-2.5 sm:p-3 bg-[#090B0F] flex-1 flex flex-col justify-center">
+          <div onclick="openActiveClipModal()" class="relative w-full aspect-video rounded-lg overflow-hidden bg-black border border-white/10 cursor-pointer group mx-auto">
+            <canvas id="programMonitorCanvas" class="w-full h-full block"></canvas>
+
+            <!-- Optional Broadcast Safe-Margin Guides Overlay -->
+            <div id="safe-guides-overlay" class="hidden pointer-events-none absolute inset-0">
+              <div class="absolute inset-[5%] border border-dashed border-cyan-400/35"></div>
+              <div class="absolute inset-[10%] border border-cyan-400/25"></div>
+              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5">
+                <div class="absolute inset-x-0 top-1/2 h-px bg-cyan-400/50"></div>
+                <div class="absolute inset-y-0 left-1/2 w-px bg-cyan-400/50"></div>
+              </div>
+            </div>
+
+            <!-- Top-Left Live Clip Pill Overlay -->
+            <div class="pointer-events-none absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-md border border-white/15">
+                <span id="monitor-cat-dot" class="w-2.5 h-2.5 rounded-sm bg-rose-500"></span>
+                <span id="monitor-cat-label" class="font-mono text-[10px] uppercase tracking-wider text-neutral-200">Client Documentary</span>
+              </div>
+              <span id="monitor-duration-pill" class="px-2 py-0.5 rounded bg-black/70 backdrop-blur-md border border-white/10 font-mono text-[10px] text-neutral-300">
+                DUR 03:42
+              </span>
+            </div>
+
+            <!-- Bottom Overlay Title & Action Prompt -->
+            <div class="absolute inset-x-0 bottom-0 p-3 sm:p-4 bg-gradient-to-t from-black/90 via-black/55 to-transparent flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+              <div>
+                <p id="monitor-clip-track" class="font-mono text-[10px] text-amber-300/90 mb-0.5">V3 · ★ PINNED CLIENT WORK</p>
+                <h2 id="monitor-clip-title" class="font-serif italic text-xl sm:text-2xl md:text-3xl text-white leading-tight">
+                  Documentary — Featured Client Edit
+                </h2>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 group-hover:bg-rose-500 text-neutral-900 group-hover:text-white font-mono text-[11px] font-semibold transition-colors shrink-0 self-start sm:self-auto shadow-lg">
+                <span>▶ Watch Full Edit &amp; Notes</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitor Transport Controls & Stereo VU Audio Meter -->
+        <div class="nle-header px-3.5 py-2.5 border-t nle-border border-b-0 flex flex-wrap items-center justify-between gap-3">
+          <!-- Playback Transport Buttons -->
+          <div class="flex items-center gap-1.5">
+            <button onclick="stepClip(-1)" title="Previous Clip (←)" class="w-8 h-8 rounded-lg border nle-border hover:border-rose-400/50 flex items-center justify-center font-mono text-xs text-main transition-colors">
+              |◀
+            </button>
+            <button id="transport-play-btn" onclick="toggleTimelinePlayback()" title="Play / Pause Timeline Scrub (Spacebar)" class="px-3.5 h-8 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-mono text-xs font-semibold flex items-center gap-1.5 transition-colors">
+              <span id="transport-play-icon">▶</span>
+              <span id="transport-play-label">Play</span>
+            </button>
+            <button onclick="stepClip(1)" title="Next Clip (→)" class="w-8 h-8 rounded-lg border nle-border hover:border-rose-400/50 flex items-center justify-center font-mono text-xs text-main transition-colors">
+              ▶|
+            </button>
+          </div>
+
+          <!-- Stereo Audio Level Meter (-12 dB Live VU Bars) -->
+          <div class="flex items-center gap-2 flex-1 max-w-[200px]">
+            <span class="font-mono text-[10px] text-dim shrink-0">L/R</span>
+            <div class="flex-1 space-y-1">
+              <div class="h-1.5 rounded-full bg-black/40 overflow-hidden border border-white/5">
+                <div id="vu-bar-l" class="h-full w-2/3 bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-75"></div>
+              </div>
+              <div class="h-1.5 rounded-full bg-black/40 overflow-hidden border border-white/5">
+                <div id="vu-bar-r" class="h-full w-3/5 bg-gradient-to-r from-emerald-400 via-amber-400 to-rose-500 transition-all duration-75"></div>
+              </div>
+            </div>
+            <span id="vu-db-readout" class="font-mono text-[10px] text-emerald-400 w-10 text-right">-12dB</span>
+          </div>
+
+          <!-- Open Project Modal Action -->
+          <button onclick="openActiveClipModal()" class="px-3 py-1.5 rounded-lg border nle-border hover:border-rose-400 text-xs font-semibold text-main flex items-center gap-1 transition-colors">
+            <span>Open Full Project</span>
+            <span>↗</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. RIGHT PANEL: DYNAMIC CLIP METADATA INSPECTOR -->
+      <aside class="lg:col-span-3 nle-panel rounded-xl flex flex-col justify-between overflow-hidden order-3">
+        <div>
+          <div class="nle-header px-3.5 py-2 flex items-center justify-between">
+            <div class="flex items-center gap-2 font-mono text-[11px] font-semibold text-main">
+              <span class="text-sky-400">⚙</span>
+              <span>CLIP INSPECTOR</span>
+            </div>
+            <span id="inspector-track-badge" class="font-mono text-[10px] px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30">V3</span>
+          </div>
+
+          <div class="p-3.5 space-y-3">
+            <!-- Selected Clip Name & Color Swatch -->
+            <div class="flex items-start gap-2.5 pb-3 border-b nle-border">
+              <span id="inspector-swatch" class="w-3.5 h-3.5 rounded mt-1 shrink-0 bg-rose-500 shadow-sm"></span>
+              <div class="min-w-0">
+                <div id="inspector-title" class="font-semibold text-sm text-main leading-snug">Documentary</div>
+                <div id="inspector-file" class="font-mono text-[11px] text-dim truncate">commend.mp4 · 1080p24</div>
+              </div>
+            </div>
+
+            <!-- Role & Deliverable -->
+            <div class="grid grid-cols-2 gap-2 text-xs pb-3 border-b nle-border">
+              <div>
+                <div class="font-mono text-[10px] uppercase text-dim mb-0.5">My Role</div>
+                <div id="inspector-role" class="font-medium text-main text-xs">Lead Editor &amp; Story</div>
+              </div>
+              <div>
+                <div class="font-mono text-[10px] uppercase text-dim mb-0.5">Format</div>
+                <div id="inspector-format" class="font-mono text-[11px] text-sub">16:9 Master Cut</div>
+              </div>
+            </div>
+
+            <!-- Tools Used -->
+            <div class="pb-3 border-b nle-border">
+              <div class="font-mono text-[10px] uppercase text-dim mb-1.5">Tools &amp; Pipeline</div>
+              <div id="inspector-tools" class="flex flex-wrap gap-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Editor / Retention Notes -->
+            <div>
+              <div class="font-mono text-[10px] uppercase text-dim mb-1">Director &amp; Editor Notes</div>
+              <p id="inspector-notes" class="text-xs text-sub leading-relaxed line-clamp-4">
+                Client documentary narrative cut structured around emotional vocal hooks, atmospheric sound design, and intentional B-roll pacing.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Inspector Launch Button -->
+        <div class="p-3.5 border-t nle-border bg-black/10 space-y-2">
+          <button onclick="openActiveClipModal()" class="w-full py-2 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold shadow-sm transition-colors flex items-center justify-center gap-1.5">
+            <span>▶ Watch Video &amp; Full Notes</span>
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ===================================================================
+         C. LOWER STUDIO HALF: MULTI-TRACK INTERACTIVE NLE TIMELINE
+         =================================================================== -->
+    <section class="nle-panel rounded-xl overflow-hidden">
+      <!-- Timeline Toolbar -->
+      <div class="nle-header px-3.5 py-2 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-main">
+            <span class="text-amber-400">▤</span>
+            <span>SEQUENCE 01 — MASTER PORTFOLIO TIMELINE</span>
+          </div>
+          <span class="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-emerald-400">
+            🧲 Snap: ON
+          </span>
+        </div>
+
+        <!-- Keyboard Hint + Zoom Controls -->
+        <div class="flex items-center gap-3">
+          <span class="hidden xl:inline-block font-mono text-[10px] text-dim">
+            Space: Play/Pause · ←/→: Prev/Next Clip · Hover: Preview · Click: Open Project
+          </span>
+          <div class="flex items-center gap-1.5">
+            <button onclick="adjustTimelineZoom(-0.2)" title="Zoom Out Timeline" class="w-6 h-6 rounded border nle-border font-mono text-xs text-sub hover:text-main flex items-center justify-center">−</button>
+            <input id="timeline-zoom-slider" type="range" min="1" max="2.2" step="0.1" value="1" oninput="setTimelineZoom(this.value)" aria-label="Timeline Zoom" class="w-20 accent-rose-500 cursor-pointer" />
+            <button onclick="adjustTimelineZoom(0.2)" title="Zoom In Timeline" class="w-6 h-6 rounded border nle-border font-mono text-xs text-sub hover:text-main flex items-center justify-center">+</button>
+            <button onclick="setTimelineZoom(1)" class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub hover:text-main">Fit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Touch Scrubbing Helper Banner -->
+      <div class="sm:hidden px-3 py-1.5 bg-rose-500/10 border-b nle-border flex items-center justify-between font-mono text-[10px] text-rose-300">
+        <span>← Swipe horizontally &amp; tap any clip to watch →</span>
+        <span>17 Clips</span>
+      </div>
+
+      <!-- Timeline Split Container: Fixed Track Headers (Left) + Scrollable Tracks Area (Right) -->
+      <div class="flex relative select-none">
+
+        <!-- Left Track Headers Column (V3, V2, V1, A1) -->
+        <div class="w-20 sm:w-36 shrink-0 border-r nle-border bg-[var(--bg-header)] z-20 flex flex-col">
+          <!-- Top-left corner matching ruler height -->
+          <div class="h-7 border-b nle-border px-2.5 flex items-center justify-between font-mono text-[10px] text-dim">
+            <span>TC</span>
+            <span class="hidden sm:inline">24fps</span>
+          </div>
+
+          <!-- Track V3 Header -->
+          <div class="h-16 border-b nle-border px-2.5 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 font-mono text-[10px] font-bold">V3</span>
+                <span class="hidden sm:inline font-mono text-[10px] text-main font-medium">Spotlight</span>
+              </div>
+              <div class="hidden sm:block text-[10px] text-dim truncate">Client &amp; AI Ads</div>
+            </div>
+            <span class="hidden sm:inline font-mono text-[10px] text-dim">👁</span>
+          </div>
+
+          <!-- Track V2 Header -->
+          <div class="h-16 border-b nle-border px-2.5 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono text-[10px] font-bold">V2</span>
+                <span class="hidden sm:inline font-mono text-[10px] text-main font-medium">Explainers</span>
+              </div>
+              <div class="hidden sm:block text-[10px] text-dim truncate">SaaS, Math &amp; Talk</div>
+            </div>
+            <span class="hidden sm:inline font-mono text-[10px] text-dim">👁</span>
+          </div>
+
+          <!-- Track V1 Header -->
+          <div class="h-16 border-b nle-border px-2.5 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">V1</span>
+                <span class="hidden sm:inline font-mono text-[10px] text-main font-medium">Long-Form</span>
+              </div>
+              <div class="hidden sm:block text-[10px] text-dim truncate">Courses &amp; Podcast</div>
+            </div>
+            <span class="hidden sm:inline font-mono text-[10px] text-dim">👁</span>
+          </div>
+
+          <!-- Track A1 Header -->
+          <div class="h-12 px-2.5 flex items-center justify-between bg-black/10">
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-400 font-mono text-[10px] font-bold">A1</span>
+              <span class="hidden sm:inline font-mono text-[10px] text-sub">Master Mix</span>
+            </div>
+            <span class="font-mono text-[9px] text-emerald-400">M · S</span>
+          </div>
+        </div>
+
+        <!-- Right Scrollable Multi-Track Canvas -->
+        <div id="timeline-scroll-wrap" class="flex-1 overflow-x-auto relative">
+          <div id="timeline-stage" class="relative min-w-[880px] w-full transition-[width] duration-150">
+
+            <!-- Scrubbable Timecode Ruler -->
+            <div id="timeline-ruler" class="h-7 border-b nle-border bg-[var(--bg-header)] relative cursor-ew-resize" title="Click or drag anywhere on ruler to scrub playhead">
+              <!-- Ticks populated dynamically via JS -->
+            </div>
+
+            <!-- Track V3 Lane (Client Documentary #1 + 4 AI Ads) -->
+            <div id="track-v3" class="h-16 border-b nle-border relative" style="background-color: var(--bg-track);"></div>
+
+            <!-- Track V2 Lane (Unfluke SaaS + Pronto Training + 5 Math Explainers) -->
+            <div id="track-v2" class="h-16 border-b nle-border relative" style="background-color: var(--bg-track-alt);"></div>
+
+            <!-- Track V1 Lane (5 Stock Market Course Modules + 1 Podcast Slot) -->
+            <div id="track-v1" class="h-16 border-b nle-border relative" style="background-color: var(--bg-track);"></div>
+
+            <!-- Track A1 Synced Stereo Waveform Lane -->
+            <div id="track-a1" class="h-12 relative overflow-hidden flex items-center" style="background-color: var(--bg-track-alt);">
+              <canvas id="waveformCanvas" class="w-full h-full block opacity-85"></canvas>
+              <!-- Authentic -6dB Audio Rubber-Band Gain Line -->
+              <div class="pointer-events-none absolute inset-x-0 top-1/2 h-[1px] bg-amber-300/60"></div>
+              <span class="pointer-events-none absolute left-2 top-1 font-mono text-[9px] text-teal-300/80">A1_Master_Dialogue_SFX_Mix.wav · -6.0 dB</span>
+            </div>
+
+            <!-- Global Draggable / Scrubbable Playhead -->
+            <div id="playhead-line" style="left: 2%;">
+              <div id="playhead-cap" title="Drag Playhead"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================================
+       [02] MEDIA POOL / BIN VIEW (TRADITIONAL SCANNABLE GRID/LIST)
+       ===================================================================== -->
+  <section id="media-pool" class="max-w-[1600px] w-full mx-auto px-3 sm:px-5 py-12 border-t nle-border">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <div>
+        <div class="font-mono text-xs text-rose-400 uppercase tracking-widest mb-1">[02] Media Pool · All Cuts</div>
+        <h2 class="font-serif italic text-3xl sm:text-4xl text-main">
+          Browse the Project Bin <span class="text-sub font-sans not-italic text-base font-normal">(17 Edits + Podcast Slot)</span>
+        </h2>
+      </div>
+
+      <!-- View Switcher: Thumbnail Grid vs Metadata List -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div id="pool-filter-bar" class="flex flex-wrap items-center gap-1.5">
+          <!-- Synced category tabs rendered via JS -->
+        </div>
+        <div class="inline-flex rounded-lg border nle-border p-0.5 bg-[var(--bg-panel)] ml-auto">
+          <button id="btn-pool-grid" onclick="setMediaPoolView('grid')" class="px-2.5 py-1 rounded-md font-mono text-[11px] bg-rose-500 text-white">Grid</button>
+          <button id="btn-pool-list" onclick="setMediaPoolView('list')" class="px-2.5 py-1 rounded-md font-mono text-[11px] text-sub hover:text-main">List</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media Pool Dynamic Container -->
+    <div id="media-pool-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Populated via JS -->
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       [03] "THREE WAYS IN" — TRANSPARENT ENGAGEMENT MODELS (INR / USD)
+       ===================================================================== -->
+  <section id="pricing" class="max-w-[1600px] w-full mx-auto px-3 sm:px-5 py-14 border-t nle-border">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div>
+        <div class="font-mono text-xs text-amber-400 uppercase tracking-widest mb-1">[03] Engagement Presets</div>
+        <h2 class="font-serif italic text-4xl sm:text-5xl text-main leading-tight">Three ways in.</h2>
+        <p class="text-sm text-sub mt-1">Clear starting rates for Indian creators, startups, and global teams.</p>
+      </div>
+
+      <!-- Live INR / USD Switcher -->
+      <div class="inline-flex items-center p-1 rounded-xl nle-panel self-start sm:self-auto">
+        <button id="curr-btn-inr" onclick="setPricingCurrency('INR')" class="px-4 py-1.5 rounded-lg font-mono text-xs font-semibold bg-rose-500 text-white transition-all">
+          INR (₹)
+        </button>
+        <button id="curr-btn-usd" onclick="setPricingCurrency('USD')" class="px-4 py-1.5 rounded-lg font-mono text-xs font-semibold text-sub hover:text-main transition-all">
+          USD ($)
+        </button>
+      </div>
+    </div>
+
+    <!-- 3-Column Studio Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+
+      <!-- Plan 1: Per-Project -->
+      <div class="nle-panel rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between font-mono text-[11px] text-dim uppercase tracking-wider mb-3">
+            <span>01 / SINGLE EDIT</span>
+            <span>Starting at</span>
+          </div>
+          <h3 class="text-xl font-bold text-main mb-2">Per-Project</h3>
+          <div class="flex items-baseline gap-1.5 mb-3">
+            <span id="price-val-project" class="font-serif italic text-4xl sm:text-5xl text-main">₹4,500</span>
+            <span class="font-mono text-xs text-sub">/ video</span>
+          </div>
+          <p class="text-xs sm:text-sm text-sub leading-relaxed pb-5 mb-5 border-b nle-border">
+            Best for one-off projects, YouTube videos, SaaS explainers, AI ads, or testing our workflow.
+          </p>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-main mb-7">
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Retention-focused pacing &amp; clean cuts</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Custom motion graphics &amp; callouts</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Clean audio mixing &amp; subtle SFX</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>2 revision rounds</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>48–72 hour turnaround</span></li>
+          </ul>
+        </div>
+        <button onclick="bookPlanViaWhatsApp('Per-Project')" class="w-full py-3 rounded-full border nle-border hover:border-rose-400 hover:bg-rose-500 hover:text-white text-main text-xs font-semibold transition-all">
+          Book a project ↗
+        </button>
+      </div>
+
+      <!-- Plan 2: Monthly Retainer (MOST POPULAR) -->
+      <div class="nle-panel rounded-2xl p-6 sm:p-7 flex flex-col justify-between relative border-2 !border-rose-500/80">
+        <div class="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-rose-500 text-white font-mono text-[10px] font-bold uppercase tracking-wider shadow">
+          Most Popular
+        </div>
+        <div>
+          <div class="flex items-center justify-between font-mono text-[11px] text-rose-400 uppercase tracking-wider mb-3">
+            <span>02 / DEDICATED PIPELINE</span>
+            <span>Priority Slot</span>
+          </div>
+          <h3 class="text-xl font-bold text-main mb-2">Monthly Retainer</h3>
+          <div class="flex items-baseline gap-1.5 mb-3">
+            <span id="price-val-retainer" class="font-serif italic text-4xl sm:text-5xl text-main">₹22,000</span>
+            <span class="font-mono text-xs text-sub">/ month</span>
+          </div>
+          <p class="text-xs sm:text-sm text-sub leading-relaxed pb-5 mb-5 border-b nle-border">
+            Best for active YouTube channels, podcasts, and growing brands looking for consistent content.
+          </p>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-main mb-7">
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>4 long-form videos per month (up to 10 min each)</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Optional 9:16 social media cutdowns</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Priority turnaround &amp; consistent visual style</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Direct WhatsApp communication</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Monthly content consistency</span></li>
+          </ul>
+        </div>
+        <button onclick="bookPlanViaWhatsApp('Monthly Retainer')" class="w-full py-3 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold shadow-md transition-all">
+          Start a retainer ↗
+        </button>
+      </div>
+
+      <!-- Plan 3: Course & Campaign Pack -->
+      <div class="nle-panel rounded-2xl p-6 sm:p-7 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between font-mono text-[11px] text-dim uppercase tracking-wider mb-3">
+            <span>03 / BATCH SERIES</span>
+            <span>Bundle Rate</span>
+          </div>
+          <h3 class="text-xl font-bold text-main mb-2">Course &amp; Campaign Pack</h3>
+          <div class="flex items-baseline gap-1.5 mb-3">
+            <span id="price-val-pack" class="font-serif italic text-4xl sm:text-5xl text-main">₹17,500</span>
+            <span class="font-mono text-xs text-sub">/ pack</span>
+          </div>
+          <p class="text-xs sm:text-sm text-sub leading-relaxed pb-5 mb-5 border-b nle-border">
+            Best for multi-lesson course modules (4–5 videos) or 3–4 AI ad hook variations.
+          </p>
+          <ul class="space-y-2.5 text-xs sm:text-sm text-main mb-7">
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>End-to-end series &amp; module consistency</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Custom charts, UI &amp; screen animations</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Structured batch delivery &amp; exports</span></li>
+            <li class="flex items-start gap-2"><span class="text-rose-400 mt-0.5">◆</span><span>Dedicated multi-stage revision cycles</span></li>
+          </ul>
+        </div>
+        <button onclick="bookPlanViaWhatsApp('Course & Campaign Pack')" class="w-full py-3 rounded-full border nle-border hover:border-rose-400 hover:bg-rose-500 hover:text-white text-main text-xs font-semibold transition-all">
+          Plan your pack ↗
+        </button>
+      </div>
+    </div>
+
+    <!-- Required Scope Disclaimer Note -->
+    <p class="mt-5 font-mono text-xs text-dim leading-relaxed max-w-4xl">
+      * Entry-level starting rates. Projects involving complex AI scene generation, extensive compositing, advanced animation, or extensive footage sourcing are quoted separately based on scope.
+    </p>
+  </section>
+
+  <!-- =====================================================================
+       [04] EXPORT SETTINGS / RENDER BRIEF — CONTACT & INQUIRY SECTION
+       ===================================================================== -->
+  <section id="contact" class="max-w-[1600px] w-full mx-auto px-3 sm:px-5 py-14 border-t nle-border">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- Left: Export / Render Queue Brief Form (7 cols) -->
+      <div class="lg:col-span-7 nle-panel rounded-2xl overflow-hidden">
+        <div class="nle-header px-5 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2 font-mono text-xs font-semibold text-main">
+            <span class="text-emerald-400">📤</span>
+            <span>EXPORT SETTINGS · RENDER PROJECT BRIEF</span>
+          </div>
+          <span class="font-mono text-[10px] text-dim">Preset: H.264 · Fast Reply</span>
+        </div>
+
+        <form id="render-brief-form" onsubmit="event.preventDefault(); sendBriefWhatsApp();" class="p-5 sm:p-7 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="brief-name" class="block font-mono text-[11px] text-sub mb-1.5">Your Name *</label>
+              <input id="brief-name" type="text" required placeholder="e.g., Rahul Verma / Sarah" class="w-full rounded-xl px-3.5 py-2.5 bg-[var(--bg-track)] border nle-border text-main placeholder:text-dim focus:outline-none focus:border-rose-400" />
+            </div>
+            <div>
+              <label for="brief-email" class="block font-mono text-[11px] text-sub mb-1.5">Email Address *</label>
+              <input id="brief-email" type="email" required placeholder="you@company.com" class="w-full rounded-xl px-3.5 py-2.5 bg-[var(--bg-track)] border nle-border text-main placeholder:text-dim focus:outline-none focus:border-rose-400" />
+            </div>
+          </div>
+
+          <div>
+            <label for="brief-preset" class="block font-mono text-[11px] text-sub mb-1.5">Project Format / Preset *</label>
+            <select id="brief-preset" class="w-full rounded-xl px-3.5 py-2.5 bg-[var(--bg-track)] border nle-border text-main focus:outline-none focus:border-rose-400">
+              <option value="Long-Form Educational / Course">Long-Form Educational / Course</option>
+              <option value="Podcast">Podcast</option>
+              <option value="Talking Head">Talking Head</option>
+              <option value="AI Advertisement">AI Advertisement</option>
+              <option value="SaaS / Visual Explainer">SaaS / Visual Explainer</option>
+              <option value="Monthly Retainer">Monthly Retainer</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="brief-notes" class="block font-mono text-[11px] text-sub mb-1.5">Project Notes / Timeline &amp; Reference Links</label>
+            <textarea id="brief-notes" rows="4" placeholder="Tell me about your footage length, target turnaround, style references, or number of videos..." class="w-full rounded-xl p-3.5 bg-[var(--bg-track)] border nle-border text-main placeholder:text-dim focus:outline-none focus:border-rose-400 resize-none"></textarea>
+          </div>
+
+          <!-- Dual Export Action Buttons -->
+          <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <button type="button" onclick="sendBriefWhatsApp()" class="flex-1 py-3 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2">
+              <span>Send via WhatsApp</span>
+              <span>↗</span>
+            </button>
+            <button type="button" onclick="sendBriefEmail()" class="flex-1 py-3 px-5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2">
+              <span>Send via Email</span>
+              <span>↗</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right: Direct Studio Channels & One-Click Copy Cards (5 cols) -->
+      <div class="lg:col-span-5 space-y-3">
+        <div class="mb-2">
+          <div class="font-mono text-xs text-sky-400 uppercase tracking-widest mb-1">Direct Patchbay</div>
+          <h3 class="font-serif italic text-3xl text-main">Reach out directly.</h3>
+          <p class="text-xs sm:text-sm text-sub">Prefer skipping forms? Copy my email or ping me directly on WhatsApp.</p>
+        </div>
+
+        <!-- Email Card with Copy -->
+        <div class="nle-panel rounded-xl p-4 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="font-mono text-[10px] uppercase text-dim">Email Address</div>
+            <div class="font-mono text-xs sm:text-sm font-semibold text-main truncate">singh0103abhay@gmail.com</div>
+          </div>
+          <button onclick="copyStudioEmail()" class="shrink-0 px-3 py-1.5 rounded-lg border nle-border hover:border-rose-400 font-mono text-xs text-main transition-colors">
+            Copy
+          </button>
+        </div>
+
+        <!-- WhatsApp Card -->
+        <a href="https://wa.me/919548414144?text=Hi%20Abhay%2C%20I%20checked%20out%20your%20timeline%20portfolio%20and%20would%20love%20to%20discuss%20a%20video%20edit!" target="_blank" rel="noopener noreferrer" class="nle-panel rounded-xl p-4 flex items-center justify-between gap-3 hover:border-emerald-400/60 transition-colors block">
+          <div>
+            <div class="font-mono text-[10px] uppercase text-emerald-400">WhatsApp · Fast Response</div>
+            <div class="font-mono text-xs sm:text-sm font-semibold text-main">+91 95484 14144</div>
+          </div>
+          <span class="font-mono text-xs text-sub">Chat ↗</span>
+        </a>
+
+        <!-- Instagram Card -->
+        <a href="https://www.instagram.com/abh.ay01_/" target="_blank" rel="noopener noreferrer" class="nle-panel rounded-xl p-4 flex items-center justify-between gap-3 hover:border-rose-400/60 transition-colors block">
+          <div>
+            <div class="font-mono text-[10px] uppercase text-rose-400">Instagram</div>
+            <div class="font-mono text-xs sm:text-sm font-semibold text-main">@abh.ay01_</div>
+          </div>
+          <span class="font-mono text-xs text-sub">Open ↗</span>
+        </a>
+
+        <!-- LinkedIn Card -->
+        <a href="https://www.linkedin.com/in/abhay-singh-04a3972a3/" target="_blank" rel="noopener noreferrer" class="nle-panel rounded-xl p-4 flex items-center justify-between gap-3 hover:border-sky-400/60 transition-colors block">
+          <div class="min-w-0">
+            <div class="font-mono text-[10px] uppercase text-sky-400">LinkedIn</div>
+            <div class="font-mono text-xs sm:text-sm font-semibold text-main truncate">linkedin.com/in/abhay-singh-04a3972a3</div>
+          </div>
+          <span class="font-mono text-xs text-sub shrink-0">Connect ↗</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       MINIMAL STUDIO STATUS FOOTER
+       ===================================================================== -->
+  <footer class="mt-auto border-t nle-border bg-[var(--bg-header)]">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-5 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[11px] text-sub">
+      <div>© 2026 Abhay Singh · Crafted natively for the timeline · Ghaziabad, IN</div>
+      <div class="flex items-center gap-4">
+        <span>Sequence: 24.00 fps · Stereo 48kHz</span>
+        <a href="#workspace" class="text-rose-400 hover:underline">Back to Timeline ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       D. FULL PROJECT SCREENING & BREAKDOWN MODAL
+       ===================================================================== -->
+  <div id="project-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5" onclick="if(event.target===this) closeProjectModal()">
+    <div class="modal-animate nle-panel w-full max-w-4xl max-h-[92dvh] rounded-2xl overflow-hidden flex flex-col">
+      
+      <!-- Modal Top NLE Bar -->
+      <div class="nle-header px-4 py-3 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="modal-cat-swatch" class="w-3 h-3 rounded-sm bg-rose-500 shrink-0"></span>
+          <span id="modal-cat-name" class="font-mono text-[11px] font-semibold text-main truncate">Client Documentary</span>
+          <span id="modal-track-tag" class="hidden sm:inline font-mono text-[10px] px-2 py-0.5 rounded border nle-border text-dim">V3</span>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button onclick="stepModalClip(-1)" class="px-2.5 py-1 rounded-lg border nle-border font-mono text-[11px] text-sub hover:text-main">← Prev</button>
+          <button onclick="stepModalClip(1)" class="px-2.5 py-1 rounded-lg border nle-border font-mono text-[11px] text-sub hover:text-main">Next →</button>
+          <button onclick="closeProjectModal()" aria-label="Close Modal" class="w-8 h-8 rounded-lg border nle-border flex items-center justify-center text-sub hover:text-main ml-1">✕</button>
+        </div>
+      </div>
+
+      <!-- Scrollable Modal Body -->
+      <div class="overflow-y-auto p-4 sm:p-6 space-y-5">
+        <!-- 16:9 Embedded Video Player OR Interactive Preview + Direct Drive Folder CTA -->
+        <div id="modal-player-stage" class="relative w-full aspect-video rounded-xl overflow-hidden bg-black border border-white/10">
+          <!-- Populated dynamically with Drive iframe OR live Canvas + Folder Launch Button -->
+        </div>
+
+        <!-- Title + External Drive Fallback Strip -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b nle-border">
+          <div>
+            <h3 id="modal-title" class="font-serif italic text-2xl sm:text-3xl text-main leading-tight">Documentary</h3>
+            <p id="modal-subtitle" class="font-mono text-xs text-sub mt-0.5">commend.mp4 · Duration 03:42</p>
+          </div>
+          <a id="modal-external-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border nle-border hover:border-rose-400 font-mono text-xs font-semibold text-main shrink-0 self-start sm:self-auto">
+            <span id="modal-external-label">Open in Google Drive</span>
+            <span>↗</span>
+          </a>
+        </div>
+
+        <!-- Craft Breakdown Grid: Role, Tools, and Retention/Edit Notes -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+          <div class="md:col-span-5 space-y-3">
+            <div class="p-3.5 rounded-xl bg-black/10 border nle-border">
+              <div class="font-mono text-[10px] uppercase text-dim mb-1">My Role</div>
+              <div id="modal-role" class="text-sm font-semibold text-main">Lead Video Editor, Sound &amp; Story</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-black/10 border nle-border">
+              <div class="font-mono text-[10px] uppercase text-dim mb-2">Tools &amp; Workflow</div>
+              <div id="modal-tools" class="flex flex-wrap gap-1.5"></div>
+            </div>
+          </div>
+
+          <div class="md:col-span-7 p-4 rounded-xl bg-black/10 border nle-border flex flex-col justify-between space-y-4">
+            <div>
+              <div class="font-mono text-[10px] uppercase text-rose-400 mb-1.5">Edit Notes &amp; Retention Strategy</div>
+              <p id="modal-notes" class="text-xs sm:text-sm text-sub leading-relaxed"></p>
+            </div>
+
+            <div class="pt-3 border-t nle-border flex flex-wrap items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-dim">Want a similar edit for your channel or brand?</span>
+              <a id="modal-wa-cta" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold shadow-sm transition-colors">
+                <span>Hire Me for Similar Edit via WhatsApp</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-box" class="fixed bottom-5 right-5 z-[60] pointer-events-none"></div>
+
+  <!-- =====================================================================
+       PORTFOLIO CONFIGURATION & INTERACTIVE NLE ENGINE
+       ===================================================================== -->
+  <script>
+    /* =====================================================================
+       1. MODULAR PORTFOLIO_CONFIG (Edit Drive File IDs / YouTube IDs anytime!)
+       ===================================================================== */
+    const PORTFOLIO_CONFIG = {
+      editorName: 'Abhay Singh',
+      email: 'singh0103abhay@gmail.com',
+      whatsappNumber: '919548414144',
+      instagram: 'https://www.instagram.com/abh.ay01_/',
+      linkedin: 'https://www.linkedin.com/in/abhay-singh-04a3972a3/',
+      driveFolders: {
+        courses: 'https://drive.google.com/drive/folders/1icWTGcMaXu2gaWWMiJFrH-_B7AJbiaZR?usp=sharing',
+        commercials: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+        explainers: 'https://drive.google.com/drive/folders/1uDEdGoONZN7lICZTbgj9RgQASEPa9nKL?usp=sharing',
+      },
+      categories: [
+        { id: 'All', label: 'All Tracks', count: 17, color: '#F3F4F6' },
+        { id: 'Client Documentary', label: 'Client Documentary', count: 1, color: '#E85D75' },
+        { id: 'AI Ads', label: 'AI Ads', count: 4, color: '#F59E0B' },
+        { id: 'Visual Explainers', label: 'Visual Explainers', count: 6, color: '#38BDF8' },
+        { id: 'Courses', label: 'Courses', count: 5, color: '#10B981' },
+        { id: 'Talking Head', label: 'Talking Head', count: 1, color: '#A78BFA' },
+        { id: 'Podcasts', label: 'Podcasts', count: 'Slot', color: '#FB7185' },
+      ],
+      pricing: {
+        INR: { project: '₹4,500', retainer: '₹22,000', pack: '₹17,500' },
+        USD: { project: '$75', retainer: '$310', pack: '$225' },
+      },
+      /*
+       * TIMELINE CLIPS (startPct + widthPct position clips cleanly from 0%..100% on V3, V2, V1)
+       * Swap `driveFileId` or add `youtubeId` anytime in 5 seconds!
+       */
+      clips: [
+        // ---------------- TRACK V3: CLIENT DOCUMENTARY (#1 PINNED) + 4 AI ADS ----------------
+        {
+          id: 'doc-commend',
+          title: 'Documentary',
+          shortTitle: '★ Documentary (Client)',
+          fileName: 'commend.mp4',
+          category: 'Client Documentary',
+          color: '#E85D75',
+          track: 'V3',
+          startPct: 0.8,
+          widthPct: 23.2,
+          duration: '03:42',
+          pinnedClient: true,
+          driveFileId: '1MwGfhsbbkIdCE3yOW7F528xB_Hp5X7RI',
+          folderUrl: '',
+          visualTheme: 'documentary',
+          role: 'Lead Video Editor, Story Structure & Sound Mix',
+          format: '16:9 Client Documentary',
+          tools: ['Premiere Pro', 'After Effects', 'Audition', 'Color Grading'],
+          notes: 'Pinned flagship client documentary edit. Built a high-retention narrative arc from raw footage using cold-open tension, custom motion callouts, textured foley layers, and clean dialogue leveling.',
+        },
+        {
+          id: 'ad-manyavar',
+          title: 'Manyavar — Celebration Wear Ad',
+          shortTitle: 'Manyavar Celebration Ad',
+          fileName: 'Manyavar_draft.mp4',
+          category: 'AI Ads',
+          color: '#F59E0B',
+          track: 'V3',
+          startPct: 25.0,
+          widthPct: 18.0,
+          duration: '00:48',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+          visualTheme: 'manyavar',
+          role: 'Commercial Video Editor & AI Visual Polish',
+          format: 'Brand Commercial',
+          tools: ['Premiere Pro', 'AI Ad Workflow', 'Color Grade', 'Sound Design'],
+          notes: 'Festive & wedding menswear commercial spotlighting fabric richness, sizing variety, and celebration energy. Cut to rhythmic traditional-modern percussion with warm golden highlights.',
+        },
+        {
+          id: 'ad-gcp-workflow',
+          title: 'Get Cloud Credits — Startup Application Workflow',
+          shortTitle: 'Cloud Credits: Workflow',
+          fileName: 'gcp8.mp4',
+          category: 'AI Ads',
+          color: '#F59E0B',
+          track: 'V3',
+          startPct: 44.0,
+          widthPct: 18.0,
+          duration: '00:52',
+          driveFileId: '10l2CsY7weHUmGTs810kqoONYhcQ5ghdU',
+          folderUrl: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+          visualTheme: 'cloud',
+          role: 'AI Ad Editor & Motion Callouts',
+          format: 'Performance Ad Spot',
+          tools: ['Premiere Pro', 'After Effects', 'AI Ad Workflow', 'SFX'],
+          notes: 'Part 1 of the Google Cloud Credits startup campaign. Simplifies the founder application workflow in under 60 seconds using crisp UI overlays and fast hook transitions.',
+        },
+        {
+          id: 'ad-gcp-eligibility',
+          title: 'Get Cloud Credits — Eligibility & Criteria',
+          shortTitle: 'Cloud Credits: Eligibility',
+          fileName: 'gcp9.mp4',
+          category: 'AI Ads',
+          color: '#F59E0B',
+          track: 'V3',
+          startPct: 63.0,
+          widthPct: 17.5,
+          duration: '00:46',
+          driveFileId: '1XrbBpAAFM8HMH-KffxNr8zG2mFTAP8j7',
+          folderUrl: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+          visualTheme: 'cloud',
+          role: 'AI Ad Editor & Kinetic Typography',
+          format: 'Performance Ad Spot',
+          tools: ['Premiere Pro', 'After Effects', 'AI Visuals'],
+          notes: 'Part 2 of the startup campaign breaking down tier eligibility and documentation checklists with zero viewer drop-off through punchy visual checklists.',
+        },
+        {
+          id: 'ad-gcp-multicloud',
+          title: 'Get Cloud Credits — Multi-Cloud & Startup Credits',
+          shortTitle: 'Cloud Credits: Multi-Cloud',
+          fileName: 'gcp10.mp4',
+          category: 'AI Ads',
+          color: '#F59E0B',
+          track: 'V3',
+          startPct: 81.5,
+          widthPct: 17.7,
+          duration: '00:54',
+          driveFileId: '1_ZD2DKWc250ff9ogrmJMqK7A9cb3PsBK',
+          folderUrl: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+          visualTheme: 'cloud',
+          role: 'Commercial Editor & Motion Graphics',
+          format: 'Performance Ad Spot',
+          tools: ['Premiere Pro', 'After Effects', 'Audio Mix'],
+          notes: 'Compares standard free-tier limits against full startup cloud credit allocations (including AWS/multi-cloud switching hooks) with clear side-by-side motion callouts.',
+        },
+
+        // ---------------- TRACK V2: SAAS & MATH EXPLAINERS (6) + TALKING HEAD (1) ----------------
+        {
+          id: 'exp-unfluke',
+          title: 'Unfluke — SaaS Product Explainer',
+          shortTitle: 'Unfluke SaaS Explainer',
+          fileName: 'explainer __F.mp4',
+          category: 'Visual Explainers',
+          color: '#38BDF8',
+          track: 'V2',
+          startPct: 0.8,
+          widthPct: 17.2,
+          duration: '02:18',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+          visualTheme: 'saas',
+          role: 'Motion Designer & Product Explainer Editor',
+          format: '16:9 SaaS Walkthrough',
+          tools: ['After Effects', 'Premiere Pro', 'UI Zooms', 'SFX'],
+          notes: 'End-to-end SaaS walkthrough for Unfluke covering its AI trading assistant, historical F&O backtesting charts, live scanner, and options simulator using smooth 3D camera zooms.',
+        },
+        {
+          id: 'talk-pronto',
+          title: 'Pronto — Good Kit & Service Standards',
+          shortTitle: 'Pronto Partner Training',
+          fileName: 'P_draft2.mp4',
+          category: 'Talking Head',
+          color: '#A78BFA',
+          track: 'V2',
+          startPct: 18.8,
+          widthPct: 15.0,
+          duration: '04:12',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1WC6mDCpOCsaU0RluKgcVXDAEx2FPtG2T?usp=sharing',
+          visualTheme: 'talking',
+          role: 'Talking-Head & Training Editor',
+          format: '16:9 Hindi Training Module',
+          tools: ['Premiere Pro', 'Bilingual Callouts', 'Audio Cleanup'],
+          notes: 'Structured Hindi talking-head training module for service partners. Paired clean presenter framing with step-by-step visual checklists for kit hygiene, chemicals, and service quality.',
+        },
+        {
+          id: 'exp-math-1',
+          title: 'Linear Pairs & Angle Reasoning',
+          shortTitle: 'Math: Linear Pairs',
+          fileName: 'demo_1.mp4',
+          category: 'Visual Explainers',
+          color: '#38BDF8',
+          track: 'V2',
+          startPct: 34.6,
+          widthPct: 12.2,
+          duration: '01:55',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1uDEdGoONZN7lICZTbgj9RgQASEPa9nKL?usp=sharing',
+          visualTheme: 'geometry',
+          role: 'Visual Explainer & Motion Animator',
+          format: '16:9 EdTech Explainer',
+          tools: ['After Effects', 'Vector Rigging', 'Premiere Pro'],
+          notes: 'Animated geometry walkthrough teaching students how to deduce missing angles along straight lines without reaching for a protractor.',
+        },
+        {
+          id: 'exp-math-3',
+          title: 'Vertically Opposite Angles: The Proof',
+          shortTitle: 'Math: Angle Proof',
+          fileName: 'demo_3.mp4',
+          category: 'Visual Explainers',
+          color: '#38BDF8',
+          track: 'V2',
+          startPct: 47.6,
+          widthPct: 12.4,
+          duration: '02:08',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1uDEdGoONZN7lICZTbgj9RgQASEPa9nKL?usp=sharing',
+          visualTheme: 'geometry',
+          role: 'Motion Graphics Editor',
+          format: '16:9 EdTech Explainer',
+          tools: ['After Effects', 'Shape Layers', 'Voice Sync'],
+          notes: 'Step-by-step visual proof storytelling using color-coded arc highlights so learners intuitively see why vertically opposite angles are always equal.',
+        },
+        {
+          id: 'exp-math-6',
+          title: 'Expressions & Number Puzzles',
+          shortTitle: 'Math: Number Puzzles',
+          fileName: 'demo_6.mp4',
+          category: 'Visual Explainers',
+          color: '#38BDF8',
+          track: 'V2',
+          startPct: 60.8,
+          widthPct: 12.4,
+          duration: '02:14',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1uDEdGoONZN7lICZTbgj9RgQASEPa9nKL?usp=sharing',
+          visualTheme: 'geometry',
+          role: 'Educational Motion Designer',
+          format: '16:9 EdTech Explainer',
+          tools: ['After Effects', 'Premiere Pro', 'Kinetic Equations'],
+          notes: 'Turns abstract algebraic variables into playful visual number puzzles, keeping student attention locked from hook to recap.',
+        },
+        {
+          id: 'exp-math-9',
+          title: 'Brackets & Sign-Flipping Rules',
+          shortTitle: 'Math: Sign-Flipping',
+          fileName: 'demo_9.mp4',
+          category: 'Visual Explainers',
+          color: '#38BDF8',
+          track: 'V2',
+          startPct: 74.0,
+          widthPct: 12.2,
+          duration: '01:49',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1uDEdGoONZN7lICZTbgj9RgQASEPa9nKL?usp=sharing',
+          visualTheme: 'geometry',
+          role: 'Motion Graphics & EdTech Editor',
+          format: '16:9 EdTech Explainer',
+          tools: ['After Effects', 'Premiere Pro', 'SFX'],
+          notes: 'Uses tactile flip animations and micro sound effects to make minus-sign distribution across brackets impossible to forget.',
+        },
+        {
+          id: 'exp-math-10',
+          title: 'Multiplying Fractions via Area Models',
+          shortTitle: 'Math: Fraction Models',
+          fileName: 'demo_10.mp4',
+          category: 'Visual Explainers',
+          color: '#38BDF8',
+          track: 'V2',
+          startPct: 87.0,
+          widthPct: 12.2,
+          duration: '02:22',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1uDEdGoONZN7lICZTbgj9RgQASEPa9nKL?usp=sharing',
+          visualTheme: 'geometry',
+          role: 'Motion Designer & Video Editor',
+          format: '16:9 EdTech Explainer',
+          tools: ['After Effects', 'Grid Overlays', 'Premiere Pro'],
+          notes: 'Visualizes fraction multiplication through overlapping shaded unit-square grids instead of dry rote-memorization formulas.',
+        },
+
+        // ---------------- TRACK V1: LONG-FORM COURSES (5) + PODCAST SLOT ----------------
+        {
+          id: 'course-1',
+          title: 'Charting Software & Timeframes',
+          shortTitle: 'Course 01: Charting',
+          fileName: 'M1_Charting_Timeframes.mp4',
+          category: 'Courses',
+          color: '#10B981',
+          track: 'V1',
+          startPct: 0.8,
+          widthPct: 16.0,
+          duration: '11:24',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1icWTGcMaXu2gaWWMiJFrH-_B7AJbiaZR?usp=sharing',
+          visualTheme: 'stocks',
+          role: 'Long-Form Course Editor & Callouts',
+          format: '16:9 Stock Market Course',
+          tools: ['Premiere Pro', 'After Effects', 'Screen Zooms'],
+          notes: 'Module lesson walking beginners through TradingView workspace setup, candlestick anatomy, and multi-timeframe Nifty chart inspection with crisp callout magnifiers.',
+        },
+        {
+          id: 'course-2',
+          title: 'Key Market Terminologies & Order Types',
+          shortTitle: 'Course 02: Order Types',
+          fileName: 'M2_Order_Types.mp4',
+          category: 'Courses',
+          color: '#10B981',
+          track: 'V1',
+          startPct: 17.6,
+          widthPct: 16.5,
+          duration: '13:10',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1icWTGcMaXu2gaWWMiJFrH-_B7AJbiaZR?usp=sharing',
+          visualTheme: 'stocks',
+          role: 'Long-Form Educational Editor',
+          format: '16:9 Stock Market Course',
+          tools: ['Premiere Pro', 'Motion Lower-Thirds', 'Audition'],
+          notes: 'Breaks down Market, Limit, Stop-Loss, and GTT orders alongside a live broker terminal walkthrough—paced tightly with chapter cards and cursor highlights.',
+        },
+        {
+          id: 'course-3',
+          title: 'Support & Resistance Zones',
+          shortTitle: 'Course 03: S&R Zones',
+          fileName: 'M3_Support_Resistance.mp4',
+          category: 'Courses',
+          color: '#10B981',
+          track: 'V1',
+          startPct: 34.9,
+          widthPct: 16.0,
+          duration: '10:48',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1icWTGcMaXu2gaWWMiJFrH-_B7AJbiaZR?usp=sharing',
+          visualTheme: 'stocks',
+          role: 'Course Video Editor & Chart Animator',
+          format: '16:9 Stock Market Course',
+          tools: ['Premiere Pro', 'After Effects', 'Chart Overlays'],
+          notes: 'Animated supply/demand zone bands and volume spike indicators directly over historical price charts so students spot institutional levels effortlessly.',
+        },
+        {
+          id: 'course-4',
+          title: 'Market Trends & Trendlines',
+          shortTitle: 'Course 04: Trendlines',
+          fileName: 'M4L1_F.mp4',
+          category: 'Courses',
+          color: '#10B981',
+          track: 'V1',
+          startPct: 51.7,
+          widthPct: 16.0,
+          duration: '12:05',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1icWTGcMaXu2gaWWMiJFrH-_B7AJbiaZR?usp=sharing',
+          visualTheme: 'stocks',
+          role: 'Long-Form Course Editor',
+          format: '16:9 Stock Market Course',
+          tools: ['Premiere Pro', 'After Effects', 'Audio Mastering'],
+          notes: 'Illustrates higher-highs, lower-lows, and valid trendline anchor points with clean vector line draws synced directly to the instructor’s voiceover.',
+        },
+        {
+          id: 'course-5',
+          title: 'Stock Market Course — Module 5: Price Action & Execution',
+          shortTitle: 'Course 05: Price Action',
+          fileName: 'M5_Price_Action.mp4',
+          category: 'Courses',
+          color: '#10B981',
+          track: 'V1',
+          startPct: 68.5,
+          widthPct: 15.5,
+          duration: '11:52',
+          driveFileId: '',
+          folderUrl: 'https://drive.google.com/drive/folders/1icWTGcMaXu2gaWWMiJFrH-_B7AJbiaZR?usp=sharing',
+          visualTheme: 'stocks',
+          role: 'Series Editor & Visual Continuity',
+          format: '16:9 Stock Market Course',
+          tools: ['Premiere Pro', 'Batch Export', 'Motion Templates'],
+          notes: 'Capstone module tying chart structure, entry triggers, and risk management into a cohesive visual style consistent across the entire 5-part curriculum.',
+        },
+        {
+          id: 'podcast-slot',
+          title: 'Podcast Episode + 9:16 Clips Slot',
+          shortTitle: '+ Your Podcast Here',
+          fileName: 'MultiCam_Podcast_Slot.prproj',
+          category: 'Podcasts',
+          color: '#FB7185',
+          track: 'V1',
+          startPct: 84.8,
+          widthPct: 14.4,
+          duration: '45:00+',
+          isPodcastSlot: true,
+          driveFileId: '',
+          folderUrl: '',
+          visualTheme: 'podcast',
+          role: 'Multi-Cam Sync, Audio Polish & Viral 9:16 Hooks',
+          format: 'Full Episode + Vertical Reels',
+          tools: ['Premiere Pro', 'Audition', 'Multi-Cam', '9:16 Cutdowns'],
+          notes: 'Dedicated podcast editing workflow: tight multi-cam speaker switching, studio-grade vocal EQ/de-essing, dynamic trailer cold-opens, and high-retention 9:16 vertical highlight clips.',
+        },
+      ],
+    };
+
+    /* =====================================================================
+       2. GLOBAL WORKSPACE STATE
+       ===================================================================== */
+    const state = {
+      activeClipId: 'doc-commend',
+      activeCategory: 'All',
+      poolView: 'grid',       // 'grid' | 'list'
+      currency: 'INR',        // 'INR' | 'USD'
+      playheadPct: 2.0,       // 0..100 across timeline
+      isPlaying: false,
+      isScrubbing: false,
+      safeGuides: false,
+      zoom: 1,
+      frameCounter: 0,
+    };
+
+    function getClipById(id) {
+      return PORTFOLIO_CONFIG.clips.find((c) => c.id === id) || PORTFOLIO_CONFIG.clips[0];
+    }
+
+    /* =====================================================================
+       3. RENDER TIMELINE RULER, CLIPS & SYNCED WAVEFORM
+       ===================================================================== */
+    function renderTimelineRuler() {
+      const ruler = document.getElementById('timeline-ruler');
+      let html = '';
+      const totalMarks = 12;
+      for (let i = 0; i <= totalMarks; i++) {
+        const pct = (i / totalMarks) * 100;
+        const totalSecs = i * 15;
+        const mm = String(Math.floor(totalSecs / 60)).padStart(2, '0');
+        const ss = String(totalSecs % 60).padStart(2, '0');
+        html += `
+          <div class="absolute top-0 bottom-0 flex flex-col justify-between pointer-events-none" style="left: ${pct}%;">
+            <span class="font-mono text-[9px] text-dim pl-1 pt-0.5">${pct < 97 ? `${mm}:${ss}` : ''}</span>
+            <span class="w-px h-2" style="background: var(--ruler-tick);"></span>
+          </div>
+        `;
+      }
+      ruler.innerHTML = html;
+    }
+
+    function renderTimelineTracks() {
+      const lanes = {
+        V3: document.getElementById('track-v3'),
+        V2: document.getElementById('track-v2'),
+        V1: document.getElementById('track-v1'),
+      };
+      lanes.V3.innerHTML = '';
+      lanes.V2.innerHTML = '';
+      lanes.V1.innerHTML = '';
+
+      PORTFOLIO_CONFIG.clips.forEach((clip) => {
+        const lane = lanes[clip.track];
+        if (!lane) return;
+
+        const isActive = state.activeClipId === clip.id;
+        const isDimmed = state.activeCategory !== 'All' && clip.category !== state.activeCategory;
+
+        const el = document.createElement('div');
+        el.id = `tl-clip-${clip.id}`;
+        el.className = `nle-clip ${isActive ? 'active-clip' : ''} ${isDimmed ? 'dimmed-clip' : ''}`;
+        el.style.left = `${clip.startPct}%`;
+        el.style.width = `${clip.widthPct}%`;
+        el.style.backgroundColor = clip.color;
+        if (clip.isPodcastSlot) {
+          el.style.borderStyle = 'dashed';
+        }
+
+        el.innerHTML = `
+          <div class="nle-clip-header px-2 py-0.5 flex items-center justify-between gap-1 text-white">
+            <span class="font-mono text-[10px] font-semibold truncate">${clip.shortTitle}</span>
+            <span class="font-mono text-[9px] opacity-85 shrink-0 hidden sm:inline">${clip.duration}</span>
+          </div>
+          <div class="px-2 py-1 flex items-center justify-between text-white/90">
+            <span class="font-mono text-[9px] truncate opacity-90">${clip.fileName}</span>
+            ${clip.pinnedClient ? '<span class="px-1 rounded bg-black/35 font-mono text-[8px] uppercase font-bold shrink-0">Client</span>' : ''}
+          </div>
+        `;
+
+        // Hover previews immediately in Program Monitor + Inspector
+        el.addEventListener('mouseenter', () => {
+          selectClip(clip.id, false);
+        });
+
+        // Click opens full project screening & breakdown modal
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectClip(clip.id, true);
+          openProjectModal(clip.id);
+        });
+
+        lane.appendChild(el);
+      });
+    }
+
+    function drawMasterWaveform() {
+      const canvas = document.getElementById('waveformCanvas');
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(880, rect.width) * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const w = Math.max(880, rect.width);
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const barStep = 4;
+      for (let x = 6; x < w - 6; x += barStep) {
+        const seed = Math.sin(x * 0.09) * Math.cos(x * 0.037) + Math.sin(x * 0.23) * 0.5;
+        const amp = Math.max(3, Math.abs(seed) * (h * 0.36));
+        ctx.fillStyle = 'rgba(45, 212, 191, 0.52)';
+        ctx.fillRect(x, h / 2 - amp, 2, amp * 2);
+      }
+    }
+
+    /* =====================================================================
+       4. CLIP SELECTION, PLAYHEAD SCRUBBING & INSPECTOR SYNC
+       ===================================================================== */
+    function selectClip(clipId, snapPlayhead = false) {
+      state.activeClipId = clipId;
+      const clip = getClipById(clipId);
+
+      if (snapPlayhead) {
+        state.playheadPct = clip.startPct + 1.2;
+        updatePlayheadDOM();
+      }
+
+      // Highlight active timeline clip without full DOM rebuild
+      document.querySelectorAll('.nle-clip').forEach((node) => {
+        node.classList.toggle('active-clip', node.id === `tl-clip-${clipId}`);
+      });
+
+      // Update Program Monitor Overlays
+      document.getElementById('monitor-cat-dot').style.backgroundColor = clip.color;
+      document.getElementById('monitor-cat-label').textContent = clip.category;
+      document.getElementById('monitor-duration-pill').textContent = `DUR ${clip.duration}`;
+      document.getElementById('monitor-clip-track').textContent = clip.pinnedClient
+        ? `${clip.track} · ★ PINNED CLIENT WORK`
+        : `${clip.track} · ${clip.fileName}`;
+      document.getElementById('monitor-clip-title').textContent = clip.title;
+
+      // Update Right Inspector Panel
+      document.getElementById('inspector-track-badge').textContent = clip.track;
+      document.getElementById('inspector-swatch').style.backgroundColor = clip.color;
+      document.getElementById('inspector-title').textContent = clip.title;
+      document.getElementById('inspector-file').textContent = `${clip.fileName} · ${clip.duration}`;
+      document.getElementById('inspector-role').textContent = clip.role;
+      document.getElementById('inspector-format').textContent = clip.format;
+      document.getElementById('inspector-notes').textContent = clip.notes;
+      document.getElementById('inspector-tools').innerHTML = clip.tools
+        .map((t) => `<span class="px-2 py-0.5 rounded border nle-border font-mono text-[10px] text-sub">${t}</span>`)
+        .join('');
+    }
+
+    function updatePlayheadDOM() {
+      const clamped = Math.max(0, Math.min(99.6, state.playheadPct));
+      state.playheadPct = clamped;
+      document.getElementById('playhead-line').style.left = `${clamped}%`;
+
+      // Convert playhead percentage (0..100% = 3 minutes sequence) to SMPTE 01:MM:SS:FF
+      const totalFrames = Math.floor((clamped / 100) * 180 * 24);
+      const ff = String(totalFrames % 24).padStart(2, '0');
+      const ss = String(Math.floor(totalFrames / 24) % 60).padStart(2, '0');
+      const mm = String(Math.floor(totalFrames / (24 * 60)) % 60).padStart(2, '0');
+      document.getElementById('monitor-timecode').textContent = `01:${mm}:${ss}:${ff}`;
+    }
+
+    function findClipUnderPlayhead(pct) {
+      // Priority check: filtered category first, then V3 -> V2 -> V1
+      const candidates = PORTFOLIO_CONFIG.clips.filter(
+        (c) => pct >= c.startPct && pct <= c.startPct + c.widthPct
+      );
+      if (!candidates.length) return null;
+      if (state.activeCategory !== 'All') {
+        const matchCat = candidates.find((c) => c.category === state.activeCategory);
+        if (matchCat) return matchCat;
+      }
+      const trackOrder = { V3: 1, V2: 2, V1: 3 };
+      candidates.sort((a, b) => trackOrder[a.track] - trackOrder[b.track]);
+      return candidates[0];
+    }
+
+    function scrubToClientX(clientX) {
+      const stage = document.getElementById('timeline-stage');
+      const rect = stage.getBoundingClientRect();
+      const pct = ((clientX - rect.left) / rect.width) * 100;
+      state.playheadPct = Math.max(0, Math.min(99.6, pct));
+      updatePlayheadDOM();
+
+      const hit = findClipUnderPlayhead(state.playheadPct);
+      if (hit && hit.id !== state.activeClipId) {
+        selectClip(hit.id, false);
+      }
+    }
+
+    function setupTimelineScrubListeners() {
+      const ruler = document.getElementById('timeline-ruler');
+      const cap = document.getElementById('playhead-cap');
+
+      const startScrub = (clientX) => {
+        state.isScrubbing = true;
+        scrubToClientX(clientX);
+      };
+
+      ruler.addEventListener('mousedown', (e) => startScrub(e.clientX));
+      cap.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        startScrub(e.clientX);
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!state.isScrubbing) return;
+        scrubToClientX(e.clientX);
+      });
+      window.addEventListener('mouseup', () => { state.isScrubbing = false; });
+
+      // Touch Scrubbing on Ruler & Playhead Cap
+      ruler.addEventListener('touchstart', (e) => startScrub(e.touches[0].clientX), { passive: true });
+      cap.addEventListener('touchstart', (e) => startScrub(e.touches[0].clientX), { passive: true });
+      window.addEventListener('touchmove', (e) => {
+        if (!state.isScrubbing) return;
+        scrubToClientX(e.touches[0].clientX);
+      }, { passive: true });
+      window.addEventListener('touchend', () => { state.isScrubbing = false; });
+    }
+
+    function toggleTimelinePlayback() {
+      state.isPlaying = !state.isPlaying;
+      document.getElementById('transport-play-icon').textContent = state.isPlaying ? '⏸' : '▶';
+      document.getElementById('transport-play-label').textContent = state.isPlaying ? 'Pause' : 'Play';
+    }
+
+    function stepClip(direction) {
+      const list = state.activeCategory === 'All'
+        ? PORTFOLIO_CONFIG.clips
+        : PORTFOLIO_CONFIG.clips.filter((c) => c.category === state.activeCategory);
+      if (!list.length) return;
+      const idx = list.findIndex((c) => c.id === state.activeClipId);
+      const nextIdx = (idx + direction + list.length) % list.length;
+      selectClip(list[nextIdx].id, true);
+    }
+
+    function setTimelineZoom(val) {
+      state.zoom = parseFloat(val);
+      document.getElementById('timeline-zoom-slider').value = state.zoom;
+      const stage = document.getElementById('timeline-stage');
+      stage.style.width = `${Math.round(state.zoom * 100)}%`;
+      setTimeout(drawMasterWaveform, 160);
+    }
+
+    function adjustTimelineZoom(delta) {
+      const next = Math.max(1, Math.min(2.2, +(state.zoom + delta).toFixed(1)));
+      setTimelineZoom(next);
+    }
+
+    function toggleSafeGuides() {
+      state.safeGuides = !state.safeGuides;
+      document.getElementById('safe-guides-overlay').classList.toggle('hidden', !state.safeGuides);
+      document.getElementById('safe-guides-btn').classList.toggle('text-cyan-400', state.safeGuides);
+    }
+
+    /* =====================================================================
+       5. PROCEDURAL 60FPS PROGRAM MONITOR CANVAS ENGINE
+       ===================================================================== */
+    const monCanvas = document.getElementById('programMonitorCanvas');
+    const monCtx = monCanvas.getContext('2d');
+
+    function resizeMonitorCanvas() {
+      const rect = monCanvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      monCanvas.width = Math.max(320, rect.width) * dpr;
+      monCanvas.height = Math.max(180, rect.height) * dpr;
+      monCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function renderProceduralScene(ctx, w, h, clip, t) {
+      const theme = clip.visualTheme;
+
+      if (theme === 'documentary') {
+        // Cinematic Documentary Frame: Warm Halation + Film Sprocket + Waveform Story Arc
+        const g = ctx.createLinearGradient(0, 0, w, h);
+        g.addColorStop(0, '#1A1118');
+        g.addColorStop(0.55, '#2E1B26');
+        g.addColorStop(1, '#0D0E13');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        // Subtle warm lens glow
+        const rad = ctx.createRadialGradient(w * 0.62 + Math.sin(t * 0.7) * 28, h * 0.42, 8, w * 0.62, h * 0.42, w * 0.42);
+        rad.addColorStop(0, 'rgba(232, 93, 117, 0.36)');
+        rad.addColorStop(0.5, 'rgba(245, 158, 11, 0.14)');
+        rad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = rad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Cinema 2.39:1 Letterbox & Rule-of-Thirds Grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(w * 0.12, h * 0.18, w * 0.76, h * 0.64);
+        for (let i = 0; i < 24; i++) {
+          const bx = w * 0.16 + i * ((w * 0.68) / 24);
+          const bh = 10 + Math.abs(Math.sin(t * 2.1 + i * 0.65)) * (h * 0.22);
+          ctx.fillStyle = i % 4 === 0 ? '#E85D75' : 'rgba(255,255,255,0.22)';
+          ctx.fillRect(bx, h * 0.5 - bh / 2, 4, bh);
+        }
+      } else if (theme === 'stocks') {
+        // Stock Market Course: Live TradingView Candlesticks + Moving Average Curve
+        ctx.fillStyle = '#091318';
+        ctx.fillRect(0, 0, w, h);
+
+        // Subtle Price Grid
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.1)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < w; x += 44) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+        }
+        for (let y = 0; y < h; y += 36) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+        }
+
+        // Candlesticks
+        const count = 18;
+        const step = (w * 0.8) / count;
+        ctx.beginPath();
+        for (let i = 0; i < count; i++) {
+          const cx = w * 0.1 + i * step;
+          const wave = Math.sin(i * 0.45 + t * 1.1) * (h * 0.16) + Math.cos(i * 0.2) * (h * 0.08);
+          const cy = h * 0.52 - wave;
+          const bull = Math.cos(i * 0.9 + t) > -0.15;
+          const bodyH = 10 + Math.abs(Math.sin(i * 1.3 + t * 0.6)) * 22;
+
+          ctx.strokeStyle = bull ? '#10B981' : '#EF4444';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - bodyH * 0.9);
+          ctx.lineTo(cx, cy + bodyH * 0.9);
+          ctx.stroke();
+
+          ctx.fillStyle = bull ? '#10B981' : '#EF4444';
+          ctx.fillRect(cx - 5, cy - bodyH / 2, 10, bodyH);
+        }
+
+        // Smooth EMA Trendline
+        ctx.strokeStyle = '#38BDF8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let x = w * 0.08; x <= w * 0.92; x += 12) {
+          const y = h * 0.52 - Math.sin((x / w) * 7 + t * 1.1) * (h * 0.14);
+          if (x === w * 0.08) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      } else if (theme === 'geometry') {
+        // Math & Visual Explainers: Dynamic Intersecting Proof Lines & Angle Arcs
+        ctx.fillStyle = '#0B1322';
+        ctx.fillRect(0, 0, w, h);
+
+        const cx = w * 0.5;
+        const cy = h * 0.5;
+        const angleA = 0.35 + Math.sin(t * 0.9) * 0.28;
+        const len = Math.min(w, h) * 0.38;
+
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+        ctx.strokeRect(w * 0.15, h * 0.18, w * 0.7, h * 0.64);
+
+        // Line 1 (Horizontal-ish)
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(cx - len, cy);
+        ctx.lineTo(cx + len, cy);
+        ctx.stroke();
+
+        // Line 2 (Rotating Transversal)
+        ctx.strokeStyle = '#38BDF8';
+        ctx.beginPath();
+        ctx.moveTo(cx - Math.cos(angleA) * len, cy + Math.sin(angleA) * len);
+        ctx.lineTo(cx + Math.cos(angleA) * len, cy - Math.sin(angleA) * len);
+        ctx.stroke();
+
+        // Vertically Opposite Highlighted Angle Sectors
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.32)';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, 42, -angleA, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, 42, Math.PI - angleA, Math.PI);
+        ctx.closePath();
+        ctx.fill();
+
+        const deg = Math.round((angleA * 180) / Math.PI);
+        ctx.fillStyle = '#FCD34D';
+        ctx.font = '600 12px "JetBrains Mono", monospace';
+        ctx.fillText(`θ = ${deg}°`, cx + 50, cy - 10);
+        ctx.fillText(`180° − θ = ${180 - deg}°`, cx - 130, cy - 10);
+      } else if (theme === 'cloud' || theme === 'saas') {
+        // AI Cloud Credits & SaaS UI Nodes
+        const g = ctx.createLinearGradient(0, 0, w, h);
+        g.addColorStop(0, '#0D1324');
+        g.addColorStop(1, '#1A1429');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        const nodes = 7;
+        const pts = [];
+        for (let i = 0; i < nodes; i++) {
+          const ang = (i / nodes) * Math.PI * 2 + t * 0.35;
+          const rx = w * 0.26;
+          const ry = h * 0.24;
+          pts.push({
+            x: w / 2 + Math.cos(ang) * rx,
+            y: h / 2 + Math.sin(ang * 1.2) * ry,
+          });
+        }
+        ctx.strokeStyle = theme === 'cloud' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(56, 189, 248, 0.32)';
+        ctx.lineWidth = 1.4;
+        pts.forEach((p, idx) => {
+          const next = pts[(idx + 1) % pts.length];
+          ctx.beginPath();
+          ctx.moveTo(w / 2, h / 2);
+          ctx.lineTo(p.x, p.y);
+          ctx.lineTo(next.x, next.y);
+          ctx.stroke();
+
+          ctx.fillStyle = theme === 'cloud' ? '#F59E0B' : '#38BDF8';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(w / 2, h / 2, 10, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (theme === 'manyavar') {
+        // Manyavar Festive Golden Mandala Motifs
+        const g = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w * 0.6);
+        g.addColorStop(0, '#422006');
+        g.addColorStop(0.6, '#27120B');
+        g.addColorStop(1, '#0F0908');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(t * 0.2);
+        for (let i = 0; i < 12; i++) {
+          ctx.rotate(Math.PI / 6);
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.38)';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(18, -12, 56, 24);
+        }
+        ctx.restore();
+      } else {
+        // Talking Head / Podcast Dual Mic Waveform Studio
+        ctx.fillStyle = '#141122';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 32; i++) {
+          const x = w * 0.14 + i * ((w * 0.72) / 32);
+          const amp = 8 + Math.abs(Math.sin(t * 3 + i * 0.45)) * (h * 0.26);
+          ctx.fillStyle = theme === 'podcast' ? '#FB7185' : '#A78BFA';
+          ctx.fillRect(x, h / 2 - amp / 2, 5, amp);
+        }
+      }
+    }
+
+    function updateMainAnimationLoop() {
+      state.frameCounter++;
+      const t = state.frameCounter * 0.025;
+
+      // Advance Playhead smoothly if Playing
+      if (state.isPlaying && !state.isScrubbing) {
+        state.playheadPct += 0.085;
+        if (state.playheadPct >= 99.5) state.playheadPct = 0.8;
+        updatePlayheadDOM();
+        const hit = findClipUnderPlayhead(state.playheadPct);
+        if (hit && hit.id !== state.activeClipId) {
+          selectClip(hit.id, false);
+        }
+      }
+
+      // Draw Program Monitor Canvas
+      const clip = getClipById(state.activeClipId);
+      const rect = monCanvas.parentElement.getBoundingClientRect();
+      renderProceduralScene(monCtx, rect.width, rect.height, clip, t);
+
+      // Animate Modal Canvas if open on a folder-backed clip
+      const modalCanvas = document.getElementById('modalPreviewCanvas');
+      if (modalCanvas) {
+        const mRect = modalCanvas.parentElement.getBoundingClientRect();
+        const mCtx = modalCanvas.getContext('2d');
+        const mClip = getClipById(modalCanvas.dataset.clipId);
+        renderProceduralScene(mCtx, mRect.width, mRect.height, mClip, t);
+      }
+
+      // Gentle VU Meter Pulse
+      if (state.frameCounter % 4 === 0) {
+        const base = state.isPlaying ? 68 : 42;
+        const lPct = Math.min(96, Math.max(18, base + Math.sin(t * 4.3) * 22));
+        const rPct = Math.min(96, Math.max(18, base + Math.cos(t * 3.7) * 20));
+        document.getElementById('vu-bar-l').style.width = `${lPct}%`;
+        document.getElementById('vu-bar-r').style.width = `${rPct}%`;
+        const db = Math.round(-24 + (lPct / 100) * 18);
+        document.getElementById('vu-db-readout').textContent = `${db}dB`;
+      }
+
+      requestAnimationFrame(updateMainAnimationLoop);
+    }
+
+    /* =====================================================================
+       6. CATEGORY FILTERS & MEDIA POOL BIN RENDERER
+       ===================================================================== */
+    function renderFilterControls() {
+      const binContainer = document.getElementById('bin-filter-pills');
+      const poolContainer = document.getElementById('pool-filter-bar');
+
+      const pillsHTML = PORTFOLIO_CONFIG.categories.map((cat) => {
+        const active = state.activeCategory === cat.id;
+        return `
+          <button onclick="setCategoryFilter('${cat.id}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-[11px] border transition-all ${
+            active
+              ? 'bg-rose-500 text-white border-rose-500 font-semibold shadow-sm'
+              : 'border-[var(--border-nle)] text-sub hover:text-main bg-black/10'
+          }">
+            <span class="w-2 h-2 rounded-full" style="background:${cat.color}"></span>
+            <span>${cat.label}</span>
+            <span class="opacity-75">(${cat.count})</span>
+          </button>
+        `;
+      }).join('');
+
+      binContainer.innerHTML = pillsHTML;
+      poolContainer.innerHTML = pillsHTML;
+    }
+
+    function setCategoryFilter(catId) {
+      state.activeCategory = catId;
+      renderFilterControls();
+      renderTimelineTracks();
+      renderMediaPool();
+
+      // Snap monitor to first matching clip in that category
+      if (catId !== 'All') {
+        const firstMatch = PORTFOLIO_CONFIG.clips.find((c) => c.category === catId);
+        if (firstMatch) selectClip(firstMatch.id, true);
+      }
+    }
+
+    function setMediaPoolView(mode) {
+      state.poolView = mode;
+      document.getElementById('btn-pool-grid').className = mode === 'grid'
+        ? 'px-2.5 py-1 rounded-md font-mono text-[11px] bg-rose-500 text-white'
+        : 'px-2.5 py-1 rounded-md font-mono text-[11px] text-sub hover:text-main';
+      document.getElementById('btn-pool-list').className = mode === 'list'
+        ? 'px-2.5 py-1 rounded-md font-mono text-[11px] bg-rose-500 text-white'
+        : 'px-2.5 py-1 rounded-md font-mono text-[11px] text-sub hover:text-main';
+      renderMediaPool();
+    }
+
+    function renderMediaPool() {
+      const container = document.getElementById('media-pool-container');
+      const filtered = state.activeCategory === 'All'
+        ? PORTFOLIO_CONFIG.clips
+        : PORTFOLIO_CONFIG.clips.filter((c) => c.category === state.activeCategory);
+
+      if (state.poolView === 'list') {
+        container.className = 'nle-panel rounded-xl overflow-hidden divide-y divide-[var(--border-nle)]';
+        container.innerHTML = filtered.map((clip) => `
+          <div onclick="openProjectModal('${clip.id}')" class="px-4 py-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 hover:bg-black/15 cursor-pointer transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-3 h-3 rounded-sm shrink-0" style="background:${clip.color}"></span>
+              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded border nle-border text-dim shrink-0">${clip.track}</span>
+              <div class="min-w-0">
+                <div class="font-semibold text-sm text-main truncate flex items-center gap-2">
+                  <span>${clip.title}</span>
+                  ${clip.pinnedClient ? '<span class="px-1.5 py-0.5 rounded bg-rose-500 text-white font-mono text-[9px] uppercase">Client Work</span>' : ''}
+                </div>
+                <div class="font-mono text-[11px] text-dim truncate">${clip.role}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0 ml-auto">
+              <span class="font-mono text-[11px] text-sub">${clip.category}</span>
+              <span class="font-mono text-[11px] text-amber-400">${clip.duration}</span>
+              <span class="px-2.5 py-1 rounded-lg border nle-border font-mono text-[11px] text-main">Watch ↗</span>
+            </div>
+          </div>
+        `).join('');
+        return;
+      }
+
+      // Default Grid Bin View
+      container.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+      container.innerHTML = filtered.map((clip) => {
+        if (clip.isPodcastSlot) {
+          return `
+            <article class="nle-panel rounded-xl p-5 border-dashed flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between font-mono text-[10px] mb-3">
+                  <span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-semibold">PODCAST SLOT</span>
+                  <span class="text-dim">Multi-Cam + 9:16</span>
+                </div>
+                <h3 class="font-serif italic text-2xl text-main mb-2">Editing a Podcast? Let’s Cut a Test Reel</h3>
+                <p class="text-xs text-sub leading-relaxed mb-4">${clip.notes}</p>
+              </div>
+              <a href="https://wa.me/${PORTFOLIO_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hi Abhay! I would love to see podcast editing samples or discuss editing our podcast + 9:16 clips.')}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-mono text-xs font-semibold text-center transition-colors block">
+                Request Podcast Sample on WhatsApp ↗
+              </a>
+            </article>
+          `;
+        }
+
+        return `
+          <article onclick="openProjectModal('${clip.id}')" class="nle-panel rounded-xl overflow-hidden cursor-pointer group hover:-translate-y-0.5 transition-all flex flex-col justify-between">
+            <div>
+              <!-- Bin Clip Preview Header -->
+              <div class="h-32 bg-[#0B0D13] relative p-3 flex flex-col justify-between border-b nle-border overflow-hidden">
+                <div class="absolute inset-0 opacity-25 pointer-events-none" style="background: radial-gradient(circle at 70% 30%, ${clip.color}, transparent 70%);"></div>
+                <div class="relative z-10 flex items-center justify-between gap-1">
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/65 border border-white/10 font-mono text-[10px] text-white">
+                    <span class="w-2 h-2 rounded-full" style="background:${clip.color}"></span>
+                    ${clip.category}
+                  </span>
+                  ${clip.pinnedClient
+                    ? '<span class="px-2 py-0.5 rounded bg-rose-500 text-white font-mono text-[9px] font-bold uppercase">★ Client Work</span>'
+                    : `<span class="font-mono text-[10px] text-neutral-300 bg-black/50 px-1.5 py-0.5 rounded">${clip.duration}</span>`
+                  }
+                </div>
+                <div class="relative z-10 flex items-center justify-between">
+                  <span class="font-mono text-[10px] text-neutral-400 truncate max-w-[75%]">${clip.fileName}</span>
+                  <span class="w-7 h-7 rounded-full bg-white/90 group-hover:bg-rose-500 text-neutral-900 group-hover:text-white flex items-center justify-center text-xs font-bold transition-colors">▶</span>
+                </div>
+              </div>
+
+              <!-- Bin Metadata Body -->
+              <div class="p-4">
+                <h3 class="font-semibold text-sm text-main group-hover:text-rose-400 transition-colors mb-1 leading-snug">${clip.title}</h3>
+                <p class="text-xs text-sub line-clamp-2 leading-relaxed mb-3">${clip.notes}</p>
+              </div>
+            </div>
+
+            <div class="px-4 pb-3.5 flex items-center justify-between font-mono text-[10px] text-dim">
+              <span>Track ${clip.track}</span>
+              <span class="text-main group-hover:underline">Inspect &amp; Play ↗</span>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /* =====================================================================
+       7. PROJECT SCREENING & CRAFT BREAKDOWN MODAL
+       ===================================================================== */
+    function openActiveClipModal() {
+      openProjectModal(state.activeClipId);
+    }
+
+    function openProjectModal(clipId) {
+      selectClip(clipId, false);
+      const clip = getClipById(clipId);
+
+      // Pause auto-scrubbing while watching video
+      if (state.isPlaying) toggleTimelinePlayback();
+
+      document.getElementById('modal-cat-swatch').style.backgroundColor = clip.color;
+      document.getElementById('modal-cat-name').textContent = clip.category;
+      document.getElementById('modal-track-tag').textContent = `Track ${clip.track}`;
+      document.getElementById('modal-title').textContent = clip.title;
+      document.getElementById('modal-subtitle').textContent = `${clip.fileName} · Duration ${clip.duration}`;
+      document.getElementById('modal-role').textContent = clip.role;
+      document.getElementById('modal-notes').textContent = clip.notes;
+      document.getElementById('modal-tools').innerHTML = clip.tools
+        .map((t) => `<span class="px-2.5 py-1 rounded-lg border nle-border font-mono text-[11px] text-main">${t}</span>`)
+        .join('');
+
+      // WhatsApp Pre-filled CTA for this specific edit
+      const waMsg = `Hi Abhay! I just watched "${clip.title}" (${clip.category}) on your timeline portfolio and would love to discuss a similar edit.`;
+      document.getElementById('modal-wa-cta').href = `https://wa.me/${PORTFOLIO_CONFIG.whatsappNumber}?text=${encodeURIComponent(waMsg)}`;
+
+      // Configure Player Stage: Live Drive Iframe OR Procedural Canvas + Public Folder Button
+      const stage = document.getElementById('modal-player-stage');
+      const extLink = document.getElementById('modal-external-link');
+      const extLabel = document.getElementById('modal-external-label');
+
+      if (clip.driveFileId) {
+        const previewUrl = `https://drive.google.com/file/d/${clip.driveFileId}/preview`;
+        const viewUrl = `https://drive.google.com/file/d/${clip.driveFileId}/view?usp=sharing`;
+        stage.innerHTML = `
+          <iframe src="${previewUrl}" allow="autoplay; fullscreen" class="w-full h-full border-0" title="${clip.title}"></iframe>
+        `;
+        extLink.href = viewUrl;
+        extLabel.textContent = 'Open Direct Video in Google Drive';
+      } else if (clip.isPodcastSlot) {
+        const podWa = `https://wa.me/${PORTFOLIO_CONFIG.whatsappNumber}?text=${encodeURIComponent('Hi Abhay! Let’s talk about editing my podcast episode + 9:16 highlight clips.')}`;
+        stage.innerHTML = `
+          <canvas id="modalPreviewCanvas" data-clip-id="${clip.id}" class="w-full h-full block"></canvas>
+          <div class="absolute inset-0 bg-black/55 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6">
+            <span class="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/40 font-mono text-xs text-rose-300 mb-3">PODCAST &amp; REELS PIPELINE</span>
+            <h4 class="font-serif italic text-3xl sm:text-4xl text-white mb-2">Ready for Your Next Episode</h4>
+            <p class="text-xs sm:text-sm text-neutral-300 max-w-md mb-5">Multi-cam sync, crisp vocal mastering, retention intro hooks, and 9:16 social cutdowns.</p>
+            <a href="${podWa}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-xs sm:text-sm shadow-lg transition-all">
+              ▶ Request Sample / Book Podcast Slot on WhatsApp ↗
+            </a>
+          </div>
+        `;
+        extLink.href = podWa;
+        extLabel.textContent = 'Message on WhatsApp';
+        initModalCanvasSize();
+      } else {
+        stage.innerHTML = `
+          <canvas id="modalPreviewCanvas" data-clip-id="${clip.id}" class="w-full h-full block"></canvas>
+          <div class="absolute inset-0 bg-black/45 backdrop-blur-[1px] flex flex-col items-center justify-center text-center p-5">
+            <span class="font-mono text-[11px] text-amber-300 uppercase tracking-widest mb-1.5">${clip.category} · ${clip.fileName}</span>
+            <h4 class="font-serif italic text-2xl sm:text-4xl text-white mb-4 max-w-lg">${clip.title}</h4>
+            <a href="${clip.folderUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2">
+              <span>▶ Watch Full High-Res MP4 in Google Drive Folder</span>
+              <span>↗</span>
+            </a>
+          </div>
+        `;
+        extLink.href = clip.folderUrl;
+        extLabel.textContent = 'Open Google Drive Folder';
+        initModalCanvasSize();
+      }
+
+      document.getElementById('project-modal').classList.remove('hidden');
+    }
+
+    function initModalCanvasSize() {
+      requestAnimationFrame(() => {
+        const c = document.getElementById('modalPreviewCanvas');
+        if (!c) return;
+        const r = c.parentElement.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        c.width = Math.max(320, r.width) * dpr;
+        c.height = Math.max(180, r.height) * dpr;
+        c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+      });
+    }
+
+    function closeProjectModal() {
+      const modal = document.getElementById('project-modal');
+      modal.classList.add('hidden');
+      // Stop any active iframe audio playback cleanly
+      document.getElementById('modal-player-stage').innerHTML = '';
+    }
+
+    function stepModalClip(dir) {
+      const idx = PORTFOLIO_CONFIG.clips.findIndex((c) => c.id === state.activeClipId);
+      const next = (idx + dir + PORTFOLIO_CONFIG.clips.length) % PORTFOLIO_CONFIG.clips.length;
+      openProjectModal(PORTFOLIO_CONFIG.clips[next].id);
+    }
+
+    /* =====================================================================
+       8. PRICING CURRENCY TOGGLE & RENDER BRIEF EXPORT ACTIONS
+       ===================================================================== */
+    function setPricingCurrency(curr) {
+      state.currency = curr;
+      const rates = PORTFOLIO_CONFIG.pricing[curr];
+      document.getElementById('price-val-project').textContent = rates.project;
+      document.getElementById('price-val-retainer').textContent = rates.retainer;
+      document.getElementById('price-val-pack').textContent = rates.pack;
+
+      document.getElementById('curr-btn-inr').className = curr === 'INR'
+        ? 'px-4 py-1.5 rounded-lg font-mono text-xs font-semibold bg-rose-500 text-white transition-all'
+        : 'px-4 py-1.5 rounded-lg font-mono text-xs font-semibold text-sub hover:text-main transition-all';
+      document.getElementById('curr-btn-usd').className = curr === 'USD'
+        ? 'px-4 py-1.5 rounded-lg font-mono text-xs font-semibold bg-rose-500 text-white transition-all'
+        : 'px-4 py-1.5 rounded-lg font-mono text-xs font-semibold text-sub hover:text-main transition-all';
+    }
+
+    function bookPlanViaWhatsApp(planName) {
+      const rates = PORTFOLIO_CONFIG.pricing[state.currency];
+      const priceLabel = planName === 'Per-Project'
+        ? `${rates.project}/video`
+        : planName === 'Monthly Retainer'
+          ? `${rates.retainer}/month`
+          : `${rates.pack}/pack`;
+
+      const msg = `Hi Abhay! I'd like to inquire about your *${planName}* (${priceLabel}) plan from your portfolio.`;
+      window.open(`https://wa.me/${PORTFOLIO_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function getBriefFormValues() {
+      return {
+        name: document.getElementById('brief-name').value.trim() || 'Client',
+        email: document.getElementById('brief-email').value.trim() || 'Not provided',
+        preset: document.getElementById('brief-preset').value,
+        notes: document.getElementById('brief-notes').value.trim() || 'Let’s discuss scope and timeline.',
+      };
+    }
+
+    function sendBriefWhatsApp() {
+      const v = getBriefFormValues();
+      const text = `Hi Abhay! Here is my project brief:\n• Name: ${v.name}\n• Email: ${v.email}\n• Format: ${v.preset}\n• Notes: ${v.notes}`;
+      window.open(`https://wa.me/${PORTFOLIO_CONFIG.whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    function sendBriefEmail() {
+      const v = getBriefFormValues();
+      const subject = `Video Editing Brief — ${v.preset} (${v.name})`;
+      const body = `Hi Abhay,\n\nName: ${v.name}\nEmail: ${v.email}\nFormat / Preset: ${v.preset}\n\nProject Notes:\n${v.notes}`;
+      window.location.href = `mailto:${PORTFOLIO_CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function copyStudioEmail() {
+      const temp = document.createElement('input');
+      temp.value = PORTFOLIO_CONFIG.email;
+      document.body.appendChild(temp);
+      temp.select();
+      try {
+        document.execCommand('copy');
+        showStudioToast('✓ Copied singh0103abhay@gmail.com to clipboard');
+      } catch (err) {
+        showStudioToast('Email: singh0103abhay@gmail.com');
+      }
+      document.body.removeChild(temp);
+    }
+
+    /* =====================================================================
+       9. THEME TOGGLE, CLOCK, KEYBOARD SHORTCUTS & TOAST
+       ===================================================================== */
+    function toggleStudioTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.getElementById('theme-icon').textContent = next === 'dark' ? '☀' : '☾';
+      showStudioToast(next === 'dark' ? 'Switched to Dark NLE Studio' : 'Switched to Daylight Studio');
+    }
+
+    function toggleMobileDrawer() {
+      document.getElementById('mobile-drawer').classList.toggle('hidden');
+    }
+
+    function updateLiveClock() {
+      const str = new Date().toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      });
+      const el = document.getElementById('live-ist-clock');
+      if (el) el.textContent = str;
+    }
+
+    let toastTimeout = null;
+    function showStudioToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.innerHTML = `
+        <div class="px-4 py-2.5 rounded-xl bg-rose-500 text-white font-mono text-xs font-semibold shadow-2xl">
+          ${msg}
+        </div>
+      `;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { box.innerHTML = ''; }, 2800);
+    }
+
+    // Native NLE Keyboard Shortcuts (Space = Play/Pause, Arrows = Prev/Next Clip, Esc = Close Modal)
+    window.addEventListener('keydown', (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName : '';
+      const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      const modalOpen = !document.getElementById('project-modal').classList.contains('hidden');
+
+      if (e.key === 'Escape' && modalOpen) {
+        closeProjectModal();
+        return;
+      }
+      if (isTyping) return;
+
+      if (e.code === 'Space' && !modalOpen) {
+        e.preventDefault();
+        toggleTimelinePlayback();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        modalOpen ? stepModalClip(1) : stepClip(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        modalOpen ? stepModalClip(-1) : stepClip(-1);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      resizeMonitorCanvas();
+      drawMasterWaveform();
+    });
+
+    /* =====================================================================
+       10. INITIALIZE NLE WORKSPACE ON WINDOW LOAD
+       ===================================================================== */
+    window.onload = function () {
+      renderFilterControls();
+      renderTimelineRuler();
+      renderTimelineTracks();
+      renderMediaPool();
+      resizeMonitorCanvas();
+      drawMasterWaveform();
+      selectClip('doc-commend', true);
+      setupTimelineScrubListeners();
+      updateLiveClock();
+      setInterval(updateLiveClock, 1000);
+      updateMainAnimationLoop();
+    };
+  </script>
+</body>
+</html>
